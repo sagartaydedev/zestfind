@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Found - ZestFind</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary:#FF6B35; --navy:#1E3A8A; --bg:#F8FAFC; --card-bg:#FFFFFF; --text:#1E293B; --text-muted:#64748B; --border:#E2E8F0; }
+        [data-theme="dark"] { --bg:#0F172A; --card-bg:#1E293B; --text:#F1F5F9; --text-muted:#94A3B8; --border:#334155; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Poppins',sans-serif; background:var(--bg); color:var(--text); }
+        .navbar { background:var(--navy)!important; padding:12px 0; position:sticky; top:0; z-index:1000; box-shadow:0 2px 20px rgba(30,58,138,0.3); }
+        .navbar-brand { font-size:1.6rem; font-weight:800; color:white!important; }
+        .navbar-brand span { color:var(--primary); }
+        .nav-link { color:rgba(255,255,255,0.85)!important; font-weight:500; }
+        .nav-link:hover { color:var(--primary)!important; }
+        .page-header { background:linear-gradient(135deg,#16A34A 0%,#15803D 100%); padding:40px 0; color:white; position:relative; overflow:hidden; }
+        .page-header::before { content:''; position:absolute; top:-50%; right:-10%; width:400px; height:400px; background:rgba(255,255,255,0.05); border-radius:50%; }
+        .page-header h1 { font-size:2rem; font-weight:800; }
+        .page-header p { color:rgba(255,255,255,0.85); }
+        .form-card { background:var(--card-bg); border-radius:20px; padding:36px; box-shadow:0 8px 40px rgba(0,0,0,0.08); border:1px solid var(--border); margin-top:-30px; animation:fadeIn 0.5s ease; }
+        .form-label { font-weight:600; font-size:0.88rem; color:var(--text); margin-bottom:6px; }
+        .form-control,.form-select { border:2px solid var(--border); border-radius:10px; padding:12px 16px; font-family:'Poppins',sans-serif; font-size:0.9rem; background:var(--bg); color:var(--text); transition:all 0.3s; }
+        .form-control:focus,.form-select:focus { border-color:#16A34A; box-shadow:0 0 0 3px rgba(22,163,74,0.15); }
+        textarea.form-control { resize:vertical; min-height:100px; }
+        .upload-area { border:2.5px dashed var(--border); border-radius:16px; padding:40px 20px; text-align:center; cursor:pointer; transition:all 0.3s; background:var(--bg); position:relative; }
+        .upload-area:hover,.upload-area.dragover { border-color:#16A34A; background:rgba(22,163,74,0.05); }
+        .upload-area input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+        .preview-grid { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
+        .preview-item { position:relative; }
+        .preview-img { width:80px; height:80px; border-radius:10px; object-fit:cover; border:2px solid var(--border); }
+        .remove-img { position:absolute; top:-6px; right:-6px; background:#EF4444; color:white; border:none; width:20px; height:20px; border-radius:50%; font-size:0.7rem; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+        .steps { display:flex; margin-bottom:32px; }
+        .step { flex:1; text-align:center; padding:12px; background:var(--bg); border:1px solid var(--border); font-size:0.82rem; font-weight:600; color:var(--text-muted); }
+        .step:first-child { border-radius:10px 0 0 10px; }
+        .step:last-child { border-radius:0 10px 10px 0; }
+        .step.active { background:#16A34A; color:white; border-color:#16A34A; }
+        .step.done { background:#DCFCE7; color:#16A34A; border-color:#16A34A; }
+        .btn-submit { background:linear-gradient(135deg,#16A34A,#15803D); color:white; border:none; border-radius:12px; padding:14px 40px; font-size:1rem; font-weight:700; font-family:'Poppins',sans-serif; cursor:pointer; transition:all 0.3s; width:100%; }
+        .btn-submit:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(22,163,74,0.4); }
+        .section-divider { font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#16A34A; margin:28px 0 16px; display:flex; align-items:center; gap:10px; }
+        .section-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+        .tip-box { background:rgba(22,163,74,0.08); border:1px solid rgba(22,163,74,0.2); border-radius:12px; padding:14px 16px; font-size:0.83rem; color:var(--text-muted); }
+        .tip-box strong { color:#16A34A; }
+        .theme-toggle { background:rgba(255,255,255,0.15); border:none; color:white; width:38px; height:38px; border-radius:50%; cursor:pointer; font-size:1rem; transition:all 0.3s; }
+        .theme-toggle:hover { background:var(--primary); }
+        .lang-btn { background:rgba(255,255,255,0.15); border:none; color:white; border-radius:20px; padding:6px 14px; font-size:0.82rem; font-weight:600; cursor:pointer; font-family:'Poppins',sans-serif; }
+        .lang-btn:hover { background:var(--primary); }
+        .dropdown-item { cursor:pointer; font-family:'Poppins',sans-serif; font-size:0.88rem; }
+        footer { background:var(--navy); color:rgba(255,255,255,0.7); padding:20px 0; margin-top:60px; text-align:center; font-size:0.82rem; }
+        .badge-found-tag { background:#DCFCE7; color:#16A34A; padding:4px 14px; border-radius:20px; font-size:0.8rem; font-weight:700; display:inline-block; margin-bottom:8px; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" href="/">🔍 Zest<span>Find</span></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav me-auto ms-3">
+                <li class="nav-item"><a class="nav-link" href="/"><i class="fas fa-home me-1"></i>Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="/report"><i class="fas fa-plus-circle me-1"></i>Report Lost</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/found"><i class="fas fa-check-circle me-1"></i>Report Found</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin"><i class="fas fa-chart-bar me-1"></i>Admin</a></li>
+            </ul>
+            <div class="d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="lang-btn dropdown-toggle" data-bs-toggle="dropdown">
+                        🌐 <span id="langLabel">EN</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" onclick="setLang('en')">🇬🇧 English</a></li>
+                        <li><a class="dropdown-item" onclick="setLang('hi')">🇮🇳 हिंदी</a></li>
+                        <li><a class="dropdown-item" onclick="setLang('mr')">🟠 मराठी</a></li>
+                    </ul>
+                </div>
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="page-header">
+    <div class="container">
+        <span class="badge-found-tag">✅ Found Item</span>
+        <h1><i class="fas fa-check-circle me-2"></i><span data-key="page_title">Report Found Item</span></h1>
+        <p class="mt-1" data-key="page_sub">Tumhe kisi ki khoyi cheez mili? Report karo aur unse milao! 🙌</p>
+    </div>
+</div>
+
+<div class="container" style="max-width:780px;">
+    <div class="form-card">
+        <div class="steps mb-4">
+            <div class="step active" data-key="step1">① Item Info</div>
+            <div class="step" data-key="step2">② Location Found</div>
+            <div class="step" data-key="step3">③ Your Contact</div>
+        </div>
+
+        <form action="/found/submit" method="post" enctype="multipart/form-data">
+
+            <div class="section-divider">📦 <span data-key="sec_item">Found Item Details</span></div>
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label class="form-label" data-key="lbl_name">Item Name *</label>
+                    <input type="text" name="itemName" class="form-control"
+                           placeholder="e.g. iPhone 14 Pro, Blue Wallet..." required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" data-key="lbl_cat">Category *</label>
+                    <select name="category" class="form-select" required>
+                        <option value="">Select...</option>
+                        <option>📱 Phone</option>
+                        <option>👛 Wallet</option>
+                        <option>🎒 Bag</option>
+                        <option>🔑 Keys</option>
+                        <option>🪪 ID Card</option>
+                        <option>💻 Laptop</option>
+                        <option>📚 Books</option>
+                        <option>👓 Glasses</option>
+                        <option>📦 Other</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label" data-key="lbl_desc">Description</label>
+                    <textarea name="description" class="form-control"
+                              placeholder="Color, brand, model, any identification marks — jitna detail utna better!"></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" data-key="lbl_date">Date Found *</label>
+                    <input type="date" name="dateFound" class="form-control" required id="dateFound">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" data-key="lbl_time">Approximate Time</label>
+                    <input type="time" name="timeFound" class="form-control">
+                </div>
+            </div>
+
+            <div class="section-divider">📍 <span data-key="sec_loc">Where Did You Find It?</span></div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label" data-key="lbl_college">College/Campus *</label>
+                    <input type="text" name="college" class="form-control"
+                           placeholder="e.g. IIT Delhi, BITS Pilani..." required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" data-key="lbl_loc">Exact Location *</label>
+                    <input type="text" name="location" class="form-control"
+                           placeholder="e.g. Library 2nd floor, Canteen..." required>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Item is Currently With</label>
+                    <select name="itemWith" class="form-select">
+                        <option value="me">With Me</option>
+                        <option value="security">Security Office</option>
+                        <option value="reception">College Reception</option>
+                        <option value="lost_found">Lost & Found Box</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="section-divider">📸 <span data-key="sec_photo">Photos of Found Item</span></div>
+            <div class="upload-area" id="uploadArea">
+                <input type="file" name="images" accept="image/*" multiple onchange="previewImages(this)">
+                <div style="font-size:2.5rem;">📷</div>
+                <div style="font-weight:600;margin-top:8px;" data-key="upload_text">Drag photos here or click to upload</div>
+                <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">JPG, PNG, WEBP • Max 10MB • Multiple allowed</div>
+            </div>
+            <div class="preview-grid" id="previewGrid"></div>
+            <div class="tip-box mt-3">
+                <strong>💡 Tip:</strong> Photo upload karna owner ko identify karne mein bohot help karta hai!
+            </div>
+
+            <div class="section-divider">📞 <span data-key="sec_contact">Your Contact Info</span></div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label" data-key="lbl_yourname">Your Name *</label>
+                    <input type="text" name="finderName" class="form-control"
+                           placeholder="Your full name" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" data-key="lbl_phone">WhatsApp Number *</label>
+                    <div class="input-group">
+                        <span class="input-group-text" style="background:var(--bg);border:2px solid var(--border);border-right:none;border-radius:10px 0 0 10px;">+91</span>
+                        <input type="tel" name="phone" class="form-control"
+                               placeholder="10-digit number"
+                               style="border-left:none;border-radius:0 10px 10px 0;"
+                               maxlength="10" required pattern="[0-9]{10}">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Email (Optional)</label>
+                    <input type="email" name="email" class="form-control"
+                           placeholder="For notifications when owner is found">
+                </div>
+            </div>
+
+            <div class="tip-box mt-4" style="background:rgba(22,163,74,0.08);border-color:rgba(22,163,74,0.2);">
+                <strong style="color:#16A34A;">🙏 Dhanyawad!</strong>
+                Tumhara yeh ek kadam kisi ke din ko badal sakta hai.
+                Report submit hone ke baad hum automatically match karne ki koshish karenge!
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span data-key="btn_submit">Submit Found Report 🙌</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<footer>
+    <div>© 2026 ZestFind • Made with ❤️ for Indian Colleges</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const translations = {
+    en: {
+        page_title:"Report Found Item", page_sub:"Found something? Report it and reunite it with the owner! 🙌",
+        step1:"① Item Info", step2:"② Location Found", step3:"③ Your Contact",
+        sec_item:"Found Item Details", sec_loc:"Where Did You Find It?",
+        sec_photo:"Photos of Found Item", sec_contact:"Your Contact Info",
+        lbl_name:"Item Name *", lbl_cat:"Category *", lbl_desc:"Description",
+        lbl_date:"Date Found *", lbl_time:"Approximate Time",
+        lbl_college:"College/Campus *", lbl_loc:"Exact Location *",
+        lbl_yourname:"Your Name *", lbl_phone:"WhatsApp Number *",
+        upload_text:"Drag photos here or click to upload",
+        btn_submit:"Submit Found Report 🙌"
+    },
+    hi: {
+        page_title:"मिली हुई चीज़ रिपोर्ट करें", page_sub:"कुछ मिला? रिपोर्ट करो और मालिक से मिलाओ! 🙌",
+        step1:"① आइटम जानकारी", step2:"② मिलने की जगह", step3:"③ आपका संपर्क",
+        sec_item:"मिली हुई चीज़ का विवरण", sec_loc:"कहाँ मिली?",
+        sec_photo:"मिली चीज़ की फोटो", sec_contact:"आपकी संपर्क जानकारी",
+        lbl_name:"आइटम का नाम *", lbl_cat:"श्रेणी *", lbl_desc:"विवरण",
+        lbl_date:"मिलने की तारीख *", lbl_time:"अनुमानित समय",
+        lbl_college:"कॉलेज/कैंपस *", lbl_loc:"सटीक स्थान *",
+        lbl_yourname:"आपका नाम *", lbl_phone:"WhatsApp नंबर *",
+        upload_text:"फोटो यहाँ खींचें या क्लिक करें",
+        btn_submit:"रिपोर्ट सबमिट करें 🙌"
+    },
+    mr: {
+        page_title:"सापडलेली वस्तू नोंदवा", page_sub:"काही सापडलं? नोंद करा आणि मालकाला परत द्या! 🙌",
+        step1:"① वस्तू माहिती", step2:"② सापडलेली जागा", step3:"③ तुमचा संपर्क",
+        sec_item:"सापडलेल्या वस्तूचा तपशील", sec_loc:"कुठे सापडली?",
+        sec_photo:"सापडलेल्या वस्तूचे फोटो", sec_contact:"तुमची संपर्क माहिती",
+        lbl_name:"वस्तूचे नाव *", lbl_cat:"प्रकार *", lbl_desc:"वर्णन",
+        lbl_date:"सापडण्याची तारीख *", lbl_time:"अंदाजे वेळ",
+        lbl_college:"कॉलेज/कॅम्पस *", lbl_loc:"नक्की ठिकाण *",
+        lbl_yourname:"तुमचे नाव *", lbl_phone:"WhatsApp नंबर *",
+        upload_text:"फोटो इथे ड्रॅग करा किंवा क्लिक करा",
+        btn_submit:"नोंद सादर करा 🙌"
+    }
+};
+const langLabels = { en:"EN", hi:"हि", mr:"म" };
+
+function setLang(lang) {
+    localStorage.setItem('lang', lang);
+    document.getElementById('langLabel').innerText = langLabels[lang];
+    const t = translations[lang];
+    document.querySelectorAll('[data-key]').forEach(el => {
+        if (t[el.getAttribute('data-key')]) el.innerText = t[el.getAttribute('data-key')];
+    });
+}
+const savedLang = localStorage.getItem('lang') || 'en';
+setLang(savedLang);
+
+function toggleTheme() {
+    const html = document.documentElement;
+    const icon = document.getElementById('themeIcon');
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    icon.className = isDark ? 'fas fa-moon' : 'fas fa-sun';
+    localStorage.setItem('theme', isDark ? 'light' : 'dark');
+}
+const savedTheme = localStorage.getItem('theme') || 'light';
+document.documentElement.setAttribute('data-theme', savedTheme);
+if (savedTheme === 'dark') document.getElementById('themeIcon').className = 'fas fa-sun';
+
+document.getElementById('dateFound').valueAsDate = new Date();
+
+const area = document.getElementById('uploadArea');
+area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('dragover'); });
+area.addEventListener('dragleave', () => area.classList.remove('dragover'));
+area.addEventListener('drop', e => {
+    e.preventDefault(); area.classList.remove('dragover');
+    previewImages({ files: e.dataTransfer.files });
+});
+
+function previewImages(input) {
+    const grid = document.getElementById('previewGrid');
+    grid.innerHTML = '';
+    Array.from(input.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const item = document.createElement('div');
+            item.className = 'preview-item';
+            item.innerHTML = `<img src="${e.target.result}" class="preview-img">
+                              <button class="remove-img" onclick="this.parentElement.remove()">✕</button>`;
+            grid.appendChild(item);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+</script>
+</body>
+</html>

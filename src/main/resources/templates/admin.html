@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - ZestFind</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary:#FF6B35; --navy:#1E3A8A; --bg:#F8FAFC; --card-bg:#FFFFFF; --text:#1E293B; --text-muted:#64748B; --border:#E2E8F0; --shadow:0 4px 24px rgba(0,0,0,0.08); }
+        [data-theme="dark"] { --bg:#0F172A; --card-bg:#1E293B; --text:#F1F5F9; --text-muted:#94A3B8; --border:#334155; --shadow:0 4px 24px rgba(0,0,0,0.3); }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Poppins',sans-serif; background:var(--bg); color:var(--text); }
+
+        .navbar { background:var(--navy)!important; padding:12px 0; position:sticky; top:0; z-index:1000; box-shadow:0 2px 20px rgba(30,58,138,0.3); }
+        .navbar-brand { font-size:1.6rem; font-weight:800; color:white!important; }
+        .navbar-brand span { color:var(--primary); }
+        .nav-link { color:rgba(255,255,255,0.85)!important; font-weight:500; }
+        .nav-link:hover { color:var(--primary)!important; }
+        .theme-toggle { background:rgba(255,255,255,0.15); border:none; color:white; width:38px; height:38px; border-radius:50%; cursor:pointer; font-size:1rem; transition:all 0.3s; }
+        .theme-toggle:hover { background:var(--primary); }
+
+        .page-header { background:linear-gradient(135deg,var(--navy) 0%,#2D4CC8 100%); padding:30px 0; color:white; }
+        .page-header h1 { font-size:1.8rem; font-weight:800; }
+
+        .stat-card { background:var(--card-bg); border-radius:16px; padding:24px; box-shadow:var(--shadow); border:1px solid var(--border); text-align:center; transition:all 0.3s; }
+        .stat-card:hover { transform:translateY(-4px); }
+        .stat-icon { width:56px; height:56px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin:0 auto 12px; }
+        .stat-number { font-size:2.2rem; font-weight:800; line-height:1; }
+        .stat-label { font-size:0.78rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-top:4px; }
+
+        .admin-card { background:var(--card-bg); border-radius:16px; box-shadow:var(--shadow); border:1px solid var(--border); overflow:hidden; }
+        .admin-card-header { padding:16px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+        .admin-card-title { font-size:1rem; font-weight:700; color:var(--text); }
+
+        .table-custom { width:100%; border-collapse:collapse; }
+        .table-custom th { background:var(--bg); padding:12px 16px; font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); border-bottom:2px solid var(--border); text-align:left; }
+        .table-custom td { padding:14px 16px; border-bottom:1px solid var(--border); font-size:0.88rem; color:var(--text); vertical-align:middle; }
+        .table-custom tr:last-child td { border-bottom:none; }
+        .table-custom tr:hover td { background:var(--bg); }
+
+        .badge-status { padding:4px 12px; border-radius:20px; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
+        .badge-lost { background:#FEE2E2; color:#DC2626; }
+        .badge-found { background:#DCFCE7; color:#16A34A; }
+        .badge-claimed { background:#DBEAFE; color:#1E3A8A; }
+
+        .search-admin { border:2px solid var(--border); border-radius:10px; padding:10px 16px; font-family:'Poppins',sans-serif; font-size:0.9rem; background:var(--bg); color:var(--text); outline:none; width:100%; max-width:300px; }
+        .search-admin:focus { border-color:var(--primary); }
+
+        .btn-action { padding:6px 14px; border-radius:8px; font-size:0.78rem; font-weight:600; border:none; cursor:pointer; transition:all 0.3s; font-family:'Poppins',sans-serif; }
+        .btn-view { background:var(--navy); color:white; }
+        .btn-view:hover { background:var(--primary); }
+        .btn-found { background:#DCFCE7; color:#16A34A; }
+        .btn-found:hover { background:#16A34A; color:white; }
+        .btn-delete { background:#FEE2E2; color:#DC2626; }
+        .btn-delete:hover { background:#DC2626; color:white; }
+
+        .img-thumb { width:44px; height:44px; border-radius:8px; object-fit:cover; }
+        .img-placeholder-sm { width:44px; height:44px; border-radius:8px; background:linear-gradient(135deg,#667eea,#764ba2); display:flex; align-items:center; justify-content:center; font-size:1.2rem; }
+
+        .filter-tabs { display:flex; gap:8px; flex-wrap:wrap; }
+        .filter-tab { padding:6px 16px; border-radius:20px; font-size:0.82rem; font-weight:600; cursor:pointer; border:2px solid var(--border); background:var(--card-bg); color:var(--text-muted); transition:all 0.3s; font-family:'Poppins',sans-serif; }
+        .filter-tab.active { background:var(--primary); color:white; border-color:var(--primary); }
+        .filter-tab:hover { border-color:var(--primary); color:var(--primary); }
+
+        .empty-state { text-align:center; padding:60px 20px; }
+        .empty-state .icon { font-size:3rem; margin-bottom:12px; }
+
+        footer { background:var(--navy); color:rgba(255,255,255,0.7); padding:16px 0; margin-top:40px; text-align:center; font-size:0.82rem; }
+
+        @keyframes fadeIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        .animate-in { animation:fadeIn 0.5s ease; }
+
+        @media(max-width:768px) {
+            .stat-number { font-size:1.6rem; }
+            .table-custom th:nth-child(4), .table-custom td:nth-child(4),
+            .table-custom th:nth-child(5), .table-custom td:nth-child(5) { display:none; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" href="/">🔍 Zest<span>Find</span></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav me-auto ms-3">
+                <li class="nav-item"><a class="nav-link" href="/"><i class="fas fa-home me-1"></i>Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="/report"><i class="fas fa-plus-circle me-1"></i>Report Lost</a></li>
+                <li class="nav-item"><a class="nav-link" href="/found"><i class="fas fa-check-circle me-1"></i>Report Found</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/admin"><i class="fas fa-chart-bar me-1"></i>Admin</a></li>
+            </ul>
+            <div class="d-flex align-items-center gap-2">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="page-header">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <h1><i class="fas fa-chart-bar me-2" style="color:var(--primary)"></i>Admin Dashboard</h1>
+                <p style="color:rgba(255,255,255,0.8);margin-top:4px;">Manage all lost & found reports</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="/report" class="btn" style="background:var(--primary);color:white;border-radius:10px;font-weight:600;padding:10px 20px;font-family:'Poppins',sans-serif;">
+                    <i class="fas fa-plus me-1"></i>Add Report
+                </a>
+                <a href="/" class="btn" style="background:rgba(255,255,255,0.15);color:white;border-radius:10px;font-weight:600;padding:10px 20px;font-family:'Poppins',sans-serif;">
+                    <i class="fas fa-home me-1"></i>Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4 animate-in">
+
+    <!-- STATS CARDS -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#FEE2E2;">📦</div>
+                <div class="stat-number" style="color:#DC2626;" th:text="${total}">0</div>
+                <div class="stat-label">Total Reports</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#FEE2E2;">🔴</div>
+                <div class="stat-number" style="color:#DC2626;" id="lostCount">0</div>
+                <div class="stat-label">Lost Items</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#DCFCE7;">✅</div>
+                <div class="stat-number" style="color:#16A34A;" id="foundCount">0</div>
+                <div class="stat-label">Found Items</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#DBEAFE;">🏆</div>
+                <div class="stat-number" style="color:#1E3A8A;" id="successRate">0%</div>
+                <div class="stat-label">Success Rate</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- REPORTS TABLE -->
+    <div class="admin-card mb-4">
+        <div class="admin-card-header flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <span class="admin-card-title"><i class="fas fa-list me-2" style="color:var(--primary)"></i>All Reports</span>
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="filterItems('all', this)">All</button>
+                    <button class="filter-tab" onclick="filterItems('LOST', this)">Lost</button>
+                    <button class="filter-tab" onclick="filterItems('FOUND', this)">Found</button>
+                    <button class="filter-tab" onclick="filterItems('CLAIMED', this)">Claimed</button>
+                </div>
+            </div>
+            <input type="text" class="search-admin" id="adminSearch"
+                   placeholder="🔍 Search reports..." oninput="searchReports(this.value)">
+        </div>
+
+        <div style="overflow-x:auto;">
+            <table class="table-custom" id="reportsTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Photo</th>
+                        <th>Item Name</th>
+                        <th>Category</th>
+                        <th>Location</th>
+                        <th>Reporter</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr th:each="item, stat : ${items}" th:attr="data-status=${item.status}">
+                        <td th:text="${stat.index + 1}" style="color:var(--text-muted);font-weight:600;"></td>
+                        <td>
+                            <img th:if="${item.imagePath != null}" th:src="${item.imagePath}" class="img-thumb" alt="Item">
+                            <div class="img-placeholder-sm" th:if="${item.imagePath == null}">📦</div>
+                        </td>
+                        <td>
+                            <div style="font-weight:700;" th:text="${item.itemName}">Item</div>
+                            <div style="font-size:0.75rem;color:var(--text-muted);" th:text="${item.college}">College</div>
+                        </td>
+                        <td th:text="${item.category}">Category</td>
+                        <td th:text="${item.location != null ? item.location : '-'}">Location</td>
+                        <td>
+                            <div th:text="${item.reporterName}">Name</div>
+                            <div style="font-size:0.75rem;color:var(--text-muted);" th:text="${item.phone}">Phone</div>
+                        </td>
+                        <td th:text="${item.dateLost}">Date</td>
+                        <td>
+                            <span class="badge-status"
+                                  th:classappend="${item.status == 'LOST'} ? 'badge-lost' : (${item.status == 'FOUND'} ? 'badge-found' : 'badge-claimed')"
+                                  th:text="${item.status}">Status</span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1 flex-wrap">
+                                <a th:href="'https://wa.me/91' + ${item.phone} + '?text=Hello ' + ${item.reporterName} + ', your item ' + ${item.itemName} + ' has been found! - ZestFind'"
+                                   target="_blank" class="btn-action btn-found" title="Contact on WhatsApp">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                                <a th:href="'/admin/status/' + ${item.id} + '/FOUND'"
+                                   class="btn-action btn-found" title="Mark as Found"
+                                   th:if="${item.status == 'LOST'}">✅</a>
+                                <a th:href="'/admin/status/' + ${item.id} + '/CLAIMED'"
+                                   class="btn-action btn-view" title="Mark as Claimed"
+                                   th:if="${item.status == 'FOUND'}">🏆</a>
+                                <a th:href="'/admin/delete/' + ${item.id}"
+                                   class="btn-action btn-delete" title="Delete"
+                                   onclick="return confirm('Delete this report?')">🗑️</a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="empty-state" th:if="${#lists.isEmpty(items)}">
+                <div class="icon">📭</div>
+                <h5 style="color:var(--text-muted);">Koi reports nahi hain abhi</h5>
+                <a href="/report" class="btn mt-3"
+                   style="background:var(--primary);color:white;border-radius:10px;font-weight:600;padding:10px 24px;">
+                    <i class="fas fa-plus me-1"></i>Pehli Report Karo
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- RECENT ACTIVITY -->
+    <div class="admin-card mb-4">
+        <div class="admin-card-header">
+            <span class="admin-card-title"><i class="fas fa-clock me-2" style="color:var(--primary)"></i>Recent Activity</span>
+        </div>
+        <div style="padding:16px 24px;">
+            <div th:each="item : ${items}" th:if="${itemStat.index < 5}"
+                 style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);">
+                <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;"
+                     th:style="${item.status == 'LOST'} ? 'background:#FEE2E2' : 'background:#DCFCE7'">
+                    <span th:text="${item.status == 'LOST'} ? '🔴' : '✅'"></span>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-weight:600;font-size:0.9rem;" th:text="${item.itemName}">Item</div>
+                    <div style="font-size:0.78rem;color:var(--text-muted);"
+                         th:text="${item.reporterName + ' • ' + item.college}">Info</div>
+                </div>
+                <span class="badge-status"
+                      th:classappend="${item.status == 'LOST'} ? 'badge-lost' : 'badge-found'"
+                      th:text="${item.status}">Status</span>
+            </div>
+            <div th:if="${#lists.isEmpty(items)}" style="text-align:center;padding:20px;color:var(--text-muted);">
+                Koi activity nahi
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <div>© 2026 ZestFind • Admin Panel • Made with ❤️ for Indian Colleges</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Count stats
+    window.onload = function() {
+        const rows = document.querySelectorAll('#tableBody tr');
+        let lost = 0, found = 0, claimed = 0;
+        rows.forEach(row => {
+            const status = row.getAttribute('data-status');
+            if (status === 'LOST') lost++;
+            else if (status === 'FOUND') found++;
+            else if (status === 'CLAIMED') claimed++;
+        });
+        document.getElementById('lostCount').innerText = lost;
+        document.getElementById('foundCount').innerText = found;
+        const total = lost + found + claimed;
+        const rate = total > 0 ? Math.round(((found + claimed) / total) * 100) : 0;
+        document.getElementById('successRate').innerText = rate + '%';
+    };
+
+    // Filter
+    function filterItems(status, btn) {
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        const rows = document.querySelectorAll('#tableBody tr');
+        rows.forEach(row => {
+            if (status === 'all' || row.getAttribute('data-status') === status) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // Search
+    function searchReports(query) {
+        const rows = document.querySelectorAll('#tableBody tr');
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(query.toLowerCase()) ? '' : 'none';
+        });
+    }
+
+    // Theme
+    function toggleTheme() {
+        const html = document.documentElement;
+        const icon = document.getElementById('themeIcon');
+        const isDark = html.getAttribute('data-theme') === 'dark';
+        html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        icon.className = isDark ? 'fas fa-moon' : 'fas fa-sun';
+        localStorage.setItem('theme', isDark ? 'light' : 'dark');
+    }
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    if (savedTheme === 'dark') document.getElementById('themeIcon').className = 'fas fa-sun';
+</script>
+</body>
+</html>
